@@ -1,0 +1,40 @@
+name: Update README Timestamp
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+
+permissions:
+  contents: write
+
+jobs:
+  update-timestamp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Update Date and Time
+        env:
+          TZ: Asia/Jakarta 
+        run: |
+          # Get current date and time
+          CURRENT_DATE=$(date +'%d %B %Y %H:%M:%S WIB')
+          
+          # Replace the specific line in README.md starting with "Updated"
+          sed -i "s/^Updated .*/Updated $CURRENT_DATE/" README.md
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Add and commit. The [skip ci] tag prevents this push from triggering another workflow run.
+          git add README.md
+          git commit -m "docs: update timestamp [skip ci]" || echo "No changes to commit"
+          git push
